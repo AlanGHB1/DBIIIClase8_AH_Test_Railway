@@ -13,11 +13,3 @@ export const DB_USER_AH = process.env.DB_USER_AH;
 export const DB_PASSWORD_AH = process.env.DB_PASSWORD_AH || "";
 export const DATABASE_AH = process.env.DATABASE_AH;
 export const DB_PORT_AH = process.env.DB_PORT_AH;
-
-/*
-DB_HOST_AH=mysql.railway.internal
-DB_USER_AH=root
-DATABASE_AH=railway
-DB_PASSWORD_AH=yZizMhzorkycKwetfsyVAwSiCCXpxmcW
-DB_PORT_AH=3306
-*/
