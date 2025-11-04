@@ -1,0 +1,327 @@
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>API REST – Buenas Prácticas (Node.js + MySQL)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      html { scroll-behavior: smooth; } body { font-family: Inter, system-ui,
+      -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans",
+      "Apple Color Emoji", "Segoe UI Emoji"; } pre { overflow: auto; } code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+      "Liberation Mono", monospace; }
+    </style>
+  </head>
+  <body class="bg-white text-slate-800">
+    <header
+      class="grid grid-cols-[1fr_auto_1fr] items-center px-8 py-4 bg-gradient-to-br from-lime-500 to-emerald-900 text-white shadow-[0_4px_20px_rgba(0,0,0,0.3)] relative z-[1000] max-lg:grid-cols-1 max-lg:grid-rows-[auto_auto_auto] max-lg:justify-items-center max-lg:gap-4 max-lg:p-4"
+    >
+
+      <!-- LOGO -->
+      <div
+        class="justify-self-start text-3xl font-bold bg-gradient-to-r from-lime-200 to-lime-500 bg-clip-text text-transparent drop-shadow-[0_2px_4px_rgba(0,0,0,0.2)] max-lg:justify-self-center"
+      >
+        Clase N°8
+
+      </div>
+      <a
+        href="https://dbiiiclase8ahtestrailway-production.up.railway.app/api/empleados"
+        target="_blank"
+        class="justify-self-end bg-white text-emerald-700 font-semibold px-4 py-2 rounded-lg shadow-md hover:bg-emerald-50 transition-colors max-lg:justify-self-center"
+      >Ver API
+      </a>
+
+    </header>
+
+    <!-- Hero -->
+    <section class="bg-gradient-to-b from-emerald-50 to-white">
+      <div class="max-w-6xl mx-auto px-4 py-10 lg:py-14">
+        <div class="grid md:grid-cols-2 gap-8 items-center">
+          <div>
+            <h2
+              class="text-3xl md:text-4xl font-extrabold text-emerald-700 mb-3"
+            >Buenas prácticas esenciales</h2>
+            <p class="text-slate-600 leading-relaxed">
+              Guía rápida y práctica para diseñar APIs REST mantenibles, seguras
+              y consistentes. Incluye patrones de manejo de errores, códigos de
+              estado y ejemplos de respuestas.
+            </p>
+          </div>
+          <div
+            class="bg-white border border-emerald-100 rounded-xl p-5 shadow-sm"
+          >
+            <pre class="text-xs md:text-sm"><code>// Patrón de respuesta
+                recomendado { "ok": true, // o false en caso de error "data": {
+                ... }, // carga útil en éxito "error": null, // o { code,
+                message, details } en error "requestId": "c0rrel4t0r" // útil
+                para trazabilidad }</code></pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Q1 -->
+    <section id="q1" class="max-w-6xl mx-auto px-4 py-10">
+      <div
+        class="rounded-2xl border border-emerald-200 bg-emerald-50/40 p-6 md:p-8"
+      >
+        <h3 class="text-2xl md:text-3xl font-extrabold text-emerald-800 mb-3">1)
+          ¿Qué es una API REST?</h3>
+        <p class="text-slate-700 leading-relaxed mb-4">
+          Una
+          <strong>API REST</strong>
+          (Representational State Transfer) es un estilo de arquitectura para
+          exponer recursos (usuarios, pedidos, productos) a través de HTTP
+          utilizando métodos estándar (<code>GET</code>,
+          <code>POST</code>,
+          <code>PUT</code>,
+          <code>PATCH</code>,
+          <code>DELETE</code>). Los recursos se identifican con URLs y se
+          transfieren en formatos como
+          <strong>JSON</strong>.
+        </p>
+        <ul class="list-disc pl-6 space-y-1 text-slate-700">
+          <li><strong>Uniformidad</strong>: rutas claras, formatos consistentes
+            y sin acoplamiento al cliente.</li>
+          <li><strong>Sin estado (stateless)</strong>: cada petición lleva la
+            información necesaria (auth, contexto).</li>
+          <li><strong>Cacheable</strong>: respuestas GET pueden cachearse cuando
+            es seguro.</li>
+          <li><strong>Capas</strong>: proxys/gateways pueden intermediar sin
+            romper el contrato.</li>
+        </ul>
+        <div class="mt-4">
+          <pre
+            class="bg-white border border-emerald-100 rounded-lg p-4 text-xs md:text-sm"
+          ><code>GET /api/v1/users -> lista usuarios POST /api/v1/users -> crea
+              usuario GET /api/v1/users/:id -> detalle PATCH /api/v1/users/:id
+              -> actualización parcial DELETE /api/v1/users/:id -> elimina
+              usuario</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- Q2 -->
+    <section id="q2" class="max-w-6xl mx-auto px-4 py-10">
+      <div class="grid lg:grid-cols-2 gap-8">
+        <div
+          class="rounded-2xl border border-emerald-200 bg-white p-6 md:p-8 shadow-sm"
+        >
+          <h3
+            class="text-2xl md:text-3xl font-extrabold text-emerald-800 mb-3"
+          >2) Manejo de errores robusto (Node.js + MySQL)</h3>
+          <p class="text-slate-700 mb-4">Usa un
+            <strong>middleware centralizado</strong>, clases de error
+            personalizadas y captura asíncrona:</p>
+          <pre
+            class="bg-emerald-50 border border-emerald-100 rounded-lg p-4 text-xs md:text-sm"
+          ><code>// appError.js class AppError extends Error {
+              constructor(status, code, message, details = null) {
+              super(message); this.status = status; // HTTP status (e.g. 400,
+              404, 409, 500) this.code = code; // domain code (e.g.
+              "VALIDATION_ERROR") this.details = details; // extra info (e.g.
+              Joi errors) } } module.exports = AppError; // asyncHandler.js
+              module.exports = (fn) => (req, res, next) =>
+              Promise.resolve(fn(req, res, next)).catch(next); //
+              errorMiddleware.js const AppError = require('./appError');
+              module.exports = (err, req, res, next) => { const status =
+              err.status || 500; const payload = { ok: false, error: { code:
+              err.code || 'INTERNAL_ERROR', message: err.message || 'Error
+              interno del servidor', details: err.details || null }, requestId:
+              req.headers['x-request-id'] || null }; if (status >= 500)
+              console.error('[ERROR]', err); // log solo server errors
+              res.status(status).json(payload); };</code></pre>
+        </div>
+
+        <div
+          class="rounded-2xl border border-emerald-200 bg-white p-6 md:p-8 shadow-sm"
+        >
+          <h4 class="text-xl font-extrabold text-emerald-800 mb-3">Integración
+            con Express y MySQL</h4>
+          <pre
+            class="bg-emerald-50 border border-emerald-100 rounded-lg p-4 text-xs md:text-sm"
+          ><code>const express = require('express'); const mysql =
+              require('mysql2/promise'); const asyncHandler =
+              require('./asyncHandler'); const AppError = require('./appError');
+              const errorMiddleware = require('./errorMiddleware'); const app =
+              express(); app.use(express.json()); const pool =
+              mysql.createPool({ host: 'localhost', user: 'root', database:
+              'demo' }); // Validación simple de entrada function
+              assertUserPayload(body) { if (!body.email) throw new AppError(400,
+              'VALIDATION_ERROR', 'El email es obligatorio'); } // Ejemplo:
+              crear usuario app.post('/api/v1/users', asyncHandler(async (req,
+              res) => { assertUserPayload(req.body); try { const [result] =
+              await pool.query( 'INSERT INTO users (email, name) VALUES (?, ?)',
+              [req.body.email, req.body.name || null] ); res.status(201).json({
+              ok: true, data: { id: result.insertId } }); } catch (e) { // Mapeo
+              de errores MySQL comunes if (e.code === 'ER_DUP_ENTRY') { throw
+              new AppError(409, 'DUPLICATE', 'El email ya existe'); } throw new
+              AppError(503, 'DB_UNAVAILABLE', 'Servicio de base de datos no
+              disponible', { sqlMessage: e.sqlMessage }); } })); // 404 para
+              rutas no existentes app.use((req, res) => res.status(404).json({
+              ok:false, error:{ code:'NOT_FOUND', message:'Ruta no encontrada'
+              }})); // Middleware de errores al final app.use(errorMiddleware);
+              app.listen(3000, () => console.log('API escuchando en :3000'));</code></pre>
+          <ul class="mt-4 list-disc pl-6 text-slate-700 space-y-1">
+            <li><strong>asyncHandler</strong>
+              evita
+              <em>try/catch</em>
+              repetitivo.</li>
+            <li><strong>AppError</strong>
+              estandariza estado, código y mensaje.</li>
+            <li><strong>Logger</strong>
+              solo para 5xx; evita filtrar datos sensibles.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Q3 -->
+    <section id="q3" class="max-w-6xl mx-auto px-4 py-10">
+      <div
+        class="rounded-2xl border border-emerald-200 bg-emerald-50/40 p-6 md:p-8"
+      >
+        <h3 class="text-2xl md:text-3xl font-extrabold text-emerald-800 mb-3">3)
+          Mejores prácticas de respuestas HTTP</h3>
+        <p class="text-slate-700 mb-4">Devuelve códigos de estado y mensajes
+          consistentes según el escenario:</p>
+
+        <div class="overflow-x-auto">
+          <table
+            class="min-w-full text-sm bg-white border border-emerald-100 rounded-lg"
+          >
+            <thead class="bg-emerald-600 text-white">
+              <tr>
+                <th class="text-left px-4 py-2">Escenario</th>
+                <th class="text-left px-4 py-2">Código</th>
+                <th class="text-left px-4 py-2">Cuerpo sugerido</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-emerald-100">
+              <tr>
+                <td class="px-4 py-2">Creación exitosa</td>
+                <td class="px-4 py-2 font-semibold text-emerald-700">201 Created</td>
+                <td class="px-4 py-2"><code>{ "ok": true, "data": { "id": 1 } }</code></td>
+              </tr>
+              <tr>
+                <td class="px-4 py-2">Lectura/consulta exitosa</td>
+                <td class="px-4 py-2 font-semibold text-emerald-700">200 OK</td>
+                <td class="px-4 py-2"><code>{ "ok": true, "data": [...] }</code></td>
+              </tr>
+              <tr>
+                <td class="px-4 py-2">Validación fallida / payload inválido</td>
+                <td class="px-4 py-2 font-semibold text-emerald-700">400 Bad
+                  Request</td>
+                <td class="px-4 py-2"><code>{ "ok": false, "error": {
+                    "code":"VALIDATION_ERROR", "message":"..." , "details":[...]
+                    } }</code></td>
+              </tr>
+              <tr>
+                <td class="px-4 py-2">Recurso no encontrado</td>
+                <td class="px-4 py-2 font-semibold text-emerald-700">404 Not
+                  Found</td>
+                <td class="px-4 py-2"><code>{ "ok": false, "error": {
+                    "code":"NOT_FOUND", "message":"No existe" } }</code></td>
+              </tr>
+              <tr>
+                <td class="px-4 py-2">Conflicto (duplicados, FK, estado
+                  inválido)</td>
+                <td class="px-4 py-2 font-semibold text-emerald-700">409
+                  Conflict</td>
+                <td class="px-4 py-2"><code>{ "ok": false, "error": {
+                    "code":"CONFLICT", "message":"..." } }</code></td>
+              </tr>
+              <tr>
+                <td class="px-4 py-2">No autenticado / no autorizado</td>
+                <td class="px-4 py-2 font-semibold text-emerald-700">401 / 403</td>
+                <td class="px-4 py-2"><code>{ "ok": false, "error": {
+                    "code":"UNAUTHORIZED|FORBIDDEN", "message":"..." } }</code></td>
+              </tr>
+              <tr>
+                <td class="px-4 py-2">Error interno del servidor</td>
+                <td class="px-4 py-2 font-semibold text-emerald-700">500
+                  Internal Server Error</td>
+                <td class="px-4 py-2"><code>{ "ok": false, "error": {
+                    "code":"INTERNAL_ERROR", "message":"Error interno" } }</code></td>
+              </tr>
+              <tr>
+                <td class="px-4 py-2">Dependencia caída (DB, cache)</td>
+                <td class="px-4 py-2 font-semibold text-emerald-700">503 Service
+                  Unavailable</td>
+                <td class="px-4 py-2"><code>{ "ok": false, "error": {
+                    "code":"DEPENDENCY_DOWN", "message":"Servicio no disponible"
+                    } }</code></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-6 mt-6">
+          <div class="bg-white border border-emerald-100 rounded-lg p-4">
+            <h4 class="font-bold text-emerald-800 mb-2">Formato consistente</h4>
+            <pre class="text-xs md:text-sm"><code>// Éxito
+                res.status(200).json({ ok: true, data: users, requestId }); //
+                Error de dominio throw new AppError(409, 'DUPLICATE', 'Email ya
+                registrado');</code></pre>
+          </div>
+          <div class="bg-white border border-emerald-100 rounded-lg p-4">
+            <h4 class="font-bold text-emerald-800 mb-2">Cabeceras útiles</h4>
+            <ul class="list-disc pl-6 text-slate-700 text-sm space-y-1">
+              <li><code>X-Request-Id</code> para trazabilidad.</li>
+              <li><code>Cache-Control</code>
+                en
+                <strong>GET</strong>
+                cacheables.</li>
+              <li><code>Location</code>
+                en
+                <strong>201 Created</strong>
+                (URL del recurso nuevo).</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer
+      class="grid gap-8 p-8 bg-gradient-to-br from-emerald-900 to-lime-500 text-white mt-8 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 text-left sm:text-center"
+    >
+      <!-- Sección 1 -->
+      <div class="space-y-2">
+        <h5
+          class="text-lime-300 mb-4 pb-2 border-b border-lime-400 font-semibold text-lg"
+        >
+          Clase N°8
+        </h5>
+        <p class="text-lime-50">API REST</p>
+      </div>
+
+      <!-- Sección 2 -->
+      <div>
+        <h5
+          class="text-lime-300 mb-4 pb-2 border-b border-lime-400 font-semibold text-lg"
+        >
+          Contacto
+        </h5>
+        <ul class="list-none space-y-2">
+          <li class="text-lime-50">Nombre: Alan Hidalgo</li>
+          <li class="text-lime-50">Cédula: 34668701</li>
+          <li class="text-lime-50">Universidad Nueva Esparta</li>
+        </ul>
+      </div>
+
+      <!-- Fondo inferior -->
+      <div
+        class="col-span-full text-center pt-4 border-t border-lime-400/30 text-lime-100 text-sm"
+      >
+        <p>&copy; 2025 Clase N°8. Universidad Nueva Esparta.</p>
+      </div>
+    </footer>
+
+  </body>
+</html>
