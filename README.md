@@ -44,13 +44,13 @@ Proyecto dividido en 2 fases:
 
 ### Instalación y configuración local
 
-1) Clona el repo e instala dependencias:
+1. Clona el repo e instala dependencias:
 
 ```bash
 npm install
 ```
 
-2) Crea la base de datos local usando el script:
+2. Crea la base de datos local usando el script:
 
 ```sql
 -- Archivo: db/db_company_ah.sql
@@ -59,7 +59,7 @@ USE db_company_ah;
 -- Tabla y datos de ejemplo incluidos en el script
 ```
 
-3) Configura las variables de entorno en `src/.env` (el proyecto las carga desde `src/config.js`):
+3. Configura las variables de entorno en `src/.env` (el proyecto las carga desde `src/config.js`):
 
 ```env
 PORT_AH=3000
@@ -70,13 +70,13 @@ DB_PORT_AH=3306
 DATABASE_AH=db_company_ah
 ```
 
-4) Ejecuta en desarrollo:
+4. Ejecuta en desarrollo:
 
 ```bash
 npm run dev
 ```
 
-5) Arranque en producción/local:
+5. Arranque en producción/local:
 
 ```bash
 npm start
@@ -175,10 +175,3 @@ npx sequelize-cli db:migrate:undo
   - Códigos HTTP consistentes
 
 Acceso local: `http://localhost:3000/`
-
----
-
-## Autor y crédito
-
-- Autor: `Alan Hidalgo`
-- Universidad Nueva Esparta
